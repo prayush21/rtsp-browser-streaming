@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Generated HLS stream files
+public/streams/*.m3u8
+public/streams/*.ts
+
+# Test video file
+public/test-video.mp4
+
+# Environment variables
+.env
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db

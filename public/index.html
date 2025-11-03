@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RTSP to HLS Stream Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .video-container {
+            background-color: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+        }
+        #videoPlayer {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .info {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        .info p {
+            margin: 5px 0;
+            color: #666;
+        }
+        .info strong {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>RTSP to HLS Stream Viewer</h1>
+    
+    <div class="video-container">
+        <video id="videoPlayer" controls></video>
+    </div>
+    
+    <div class="info">
+        <p><strong>Status:</strong> Initializing stream...</p>
+        <p><strong>Source:</strong> Big Buck Bunny (RTSP Test Stream)</p>
+        <p><strong>Note:</strong> It may take 5-10 seconds for the stream to buffer and start playing.</p>
+    </div>
+
+    <!-- Import hls.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    
+    <!-- Client-side JavaScript -->
+    <script>
+        const video = document.getElementById('videoPlayer');
+        const videoSrc = '/streams/stream.m3u8';
+
+        // Check if hls.js is supported
+        if (Hls.isSupported()) {
+            console.log('HLS.js is supported');
+            
+            // Create new Hls instance
+            const hls = new Hls({
+                enableWorker: true,
+                lowLatencyMode: false,
+                backBufferLength: 90
+            });
+
+            // Load the stream source
+            hls.loadSource(videoSrc);
+            
+            // Attach to video element
+            hls.attachMedia(video);
+
+            // Listen for manifest parsed event
+            hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                console.log('Manifest loaded, starting playback');
+                video.play().catch(err => {
+                    console.log('Autoplay prevented, user interaction required');
+                });
+            });
+
+            // Listen for errors
+            hls.on(Hls.Events.ERROR, function(event, data) {
+                console.error('HLS error:', data);
+                if (data.fatal) {
+                    switch(data.type) {
+                        case Hls.ErrorTypes.NETWORK_ERROR:
+                            console.log('Network error, trying to recover...');
+                            hls.startLoad();
+                            break;
+                        case Hls.ErrorTypes.MEDIA_ERROR:
+                            console.log('Media error, trying to recover...');
+                            hls.recoverMediaError();
+                            break;
+                        default:
+                            console.log('Fatal error, cannot recover');
+                            hls.destroy();
+                            break;
+                    }
+                }
+            });
+
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            // Native HLS support (Safari)
+            console.log('Native HLS support detected');
+            video.src = videoSrc;
+            
+            video.addEventListener('loadedmetadata', function() {
+                console.log('Metadata loaded, starting playback');
+                video.play().catch(err => {
+                    console.log('Autoplay prevented, user interaction required');
+                });
+            });
+
+            video.addEventListener('error', function(err) {
+                console.error('Video error:', err);
+            });
+        } else {
+            console.error('HLS is not supported in this browser');
+            alert('Your browser does not support HLS video playback');
+        }
+    </script>
+</body>
+</html>
