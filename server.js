@@ -14,15 +14,15 @@ app.use(express.static("public"));
 const PORT = 8000;
 
 // Alternative RTSP URLs to try (uncomment one):
-// const RTSP_URL = "rtsp://rtsp.stream/pattern"; // Test pattern stream
+const RTSP_URL = "rtsp://172.24.18.91:8554/stream"; // Test pattern stream
 // const RTSP_URL = "rtsp://localhost:8554/mystream"; // Local RTSP server (if you have one)
 
 // For testing without RTSP, we'll generate a test video file
-const USE_TEST_VIDEO = true; // Set to false when using real RTSP
-const TEST_VIDEO_PATH = "public/test-video.mp4";
-const RTSP_URL = USE_TEST_VIDEO
-  ? TEST_VIDEO_PATH
-  : "rtsp://rtsp.stream/pattern";
+// const USE_TEST_VIDEO = true; // Set to false when using real RTSP
+// const TEST_VIDEO_PATH = "public/test-video.mp4";
+// const RTSP_URL = USE_TEST_VIDEO
+//   ? TEST_VIDEO_PATH
+//   : "rtsp://rtsp.stream/pattern";
 
 const OUTPUT_PATH = "public/streams/stream.m3u8";
 
